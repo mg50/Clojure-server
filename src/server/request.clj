@@ -1,4 +1,5 @@
-(ns server.request)
+(ns server.request
+  (:import (java.io InputStreamReader BufferedReader)))
 
 (def http-methods [:OPTIONS :GET :HEAD :POST :PUT :DELETE :TRACE :CONNECT])
 
@@ -25,7 +26,7 @@
         header-pairs (apply concat (remove nil? header-pairs*))]
     (apply hash-map header-pairs)))
 
-(defn parse-request [request]
-  (let [request-line (parse-request-line (first request))
-        headers (parse-headers (rest request))]
+(defn parse-request [request-lines]
+  (let [request-line (parse-request-line (first request-lines))
+        headers (parse-headers (rest request-lines))]
     {:request-line request-line, :headers headers}))
