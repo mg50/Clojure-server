@@ -2,13 +2,12 @@ This is a simple Clojure webserver utilizing agents and Sinatra-style routing. S
 
 After downloading the project, make sure to run `lein compile` to compile the src/java directory.
 
-To run the server from the project root, you have three options:
+Type `lein run` to start the server. It responds in the following ways:
 
-Echo Server:
-Default setting: start with `lein run`. Once started, visit "localhost:3000/[URI]" to have the server print the URI back to you in plaintext.
+If you send a GET request to /static/[file-path], it attempts to retrieve and echo the contents of the file at the file path (relative to the configuration webroot). If no such file is found, the server returns a 404 error.
 
-File Server:
-Start with `lein run serve-file`. Going to "localhost:3000/[file-path]" will attempt to retrieve the file at the specified path (relative to the webroot configuration) and send it back in plaintext. If not found, the server should send a 404.
+If you send a POST request to /store_data along with `filename` and `data` parameters, it creates a file in the /tmp folder with corresponding filename and contents.
 
-File Writer:
-Start with `lein run file-write`. Send a POST request to "localhost:3000/store_data" along with `filename` and `data` parameters. The server will attempt to write a new file to the /tmp directory with the specified filename and contents.
+If you send a GET request to a URI not beginning with "/static/", the server will echo back the URI.
+
+Any other request received a 403 Forbidden response.
