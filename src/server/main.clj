@@ -34,9 +34,9 @@
       (let [client (.accept server)
             server-type (first args)
             agents (generate-agents (cond
-                                     (= server-type "echo") echo-router
                                      (= server-type "serve-file") serve-file-router
-                                     (= server-type "file-write") file-write-router))]
+                                     (= server-type "file-write") file-write-router
+                                     :else echo-router))]
         (.setSoTimeout client 1000)
         (send-socket-to-http-agents agents client)
         (recur)))))
