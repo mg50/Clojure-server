@@ -1,5 +1,6 @@
 (ns server.request.parse
-  (:use server.core [clojure.java.io :only [reader]])
+  (:use server.core [clojure.java.io :only [reader]]
+        [server.socket-util :only [stream-to-string]])
   (:require [clojure.string :as string])
   (:import (java.io InputStreamReader BufferedReader)))
 
@@ -43,10 +44,6 @@
             {}
             undecoded-pairs)))
 
-
-(defn stream-to-string [rdr length]
-  (let [bytes (repeatedly length #(.read rdr))]
-    (apply str (map char bytes))))
 
 (defn parse-request [request-stream]
   (let [rdr (reader request-stream)]

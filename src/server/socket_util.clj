@@ -1,6 +1,5 @@
 (ns server.socket-util
-  (:use [server.request.parse :only [parse-request]]
-        [clojure.java.io :only [writer]])
+  (:use [clojure.java.io :only [writer]])
   (:import (java.io BufferedReader BufferedWriter InputStreamReader OutputStreamWriter)))
 
 

@@ -5,7 +5,9 @@
 (def any-method :ANY*)
 
 
-(defn match-uri-against-pattern [pattern uri]
+(defn match-uri-against-pattern
+  "Matches a regex pattern against a URI. If the pattern matches, a (possibly empty) hash of captured subgroups is returned with keys given by :$1, :$2, etc."
+  [pattern uri]
   (let [matches (re-matches pattern uri)]
     (when matches
       (if (string? matches)
@@ -13,7 +15,9 @@
         (apply merge {} (for [i (range 1 (count matches))]
                           [(keyword (str "$" i)) (matches i)]))))))
 
-(defn match-uri-against-pseudopattern [pseudopattern uri]
+(defn match-uri-against-pseudopattern
+  "A pseudopattern is a string that looks like a regex but uses keyword names like :id (so an example pseudopattern is the string \"products/:id/\"). This function matches a URI against a pseudopattern, returning a (possibly empty) hash of matches with keys given by their keyword names."
+  [pseudopattern uri]
   (let [capture-regex-string* "([A-Za-z-\\d]+)"
         pseudo-capture-regex (re-pattern (str ":" capture-regex-string*))
         capture-regex-string "([A-Za-z-\\\\d]+)"
@@ -29,7 +33,9 @@
       nil)))
 
 
-(defn route-matcher [routes]
+(defn route-matcher
+  "Given a vector of routes, returns a function that attempts to find the first whose pattern/pseudopattern matches the URI of a request. If one is found, the route's action is called on the request (along with any URI parameters)."
+  [routes]
   (fn [request]
     (loop [remaining-routes routes]
       (let [uri (get-in request [:request-line :request-uri])]
