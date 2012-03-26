@@ -9,4 +9,4 @@ File Server:
 Start with `lein run serve-file`. Going to "localhost:3000/[file-path]" will attempt to retrieve the file at the specified path (relative to the webroot configuration) and send it back in plaintext. If not found, the server should send a 404.
 
 File Writer:
-Start with `lein run file-write`. Send a POST request to "localhost:3000/store_data" along with `filename` and `data` parameters. The server will attempt to write a new file to the /var directory with the specified filename and contents.
+Start with `lein run file-write`. Send a POST request to "localhost:3000/store_data" along with `filename` and `data` parameters. The server will attempt to write a new file to the /tmp directory with the specified filename and contents.
