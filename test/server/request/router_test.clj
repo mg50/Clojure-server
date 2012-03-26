@@ -6,14 +6,43 @@
         route (GET "[A-Z]" action)]
     (is (= action (:action route)))
     (is (= :GET (:method route)))
-    (is (= "^[A-Z]$" (str (:pseudopattern route))))))
+    (is (= "^[A-Z]$" (str (:pattern route))))))
 
 (deftest test-route-2
   (let [action (fn [req] 3)
         route (POST "(.+)a" action)]
     (is (= action (:action route)))
     (is (= :POST (:method route)))
-    (is (= "^(.+)a$" (str (:pseudopattern route))))))
+    (is (= "^(.+)a$" (str (:pattern route))))))
+
+(deftest test-match-uri-against-pattern-1
+  (let [pattern #"/([^/]+)"
+        uri "/hello"]
+    (is (= {:$1 "hello"}
+           (match-uri-against-pattern pattern uri)))))
+
+(deftest test-match-uri-against-pattern-2
+  (let [pattern #"/([^/]+)/test/([^/]+)"
+        uri "/a/test/b"]
+    (is (= {:$1 "a", :$2 "b"}
+           (match-uri-against-pattern pattern uri)))))
+
+(deftest test-match-uri-against-pattern-3
+  (let [pattern #"/([^/]+)/test/([^/]+)?"
+        uri "/a/test/"]
+    (is (= {:$1 "a", :$2 nil}
+           (match-uri-against-pattern pattern uri)))))
+
+(deftest test-match-uri-against-pattern-4
+  (let [pattern #"/([^/]+)/test/([^/]+)"
+        uri "/a/test/"]
+    (is (nil? (match-uri-against-pattern pattern uri)))))
+
+(deftest test-match-uri-against-pattern-4
+  (let [pattern #"/a/test/"
+        uri "/a/test/"]
+    (is (empty? (match-uri-against-pattern pattern uri)))))
+
 
 (deftest test-match-uri-against-pseudopattern-1
   (let [pseudopattern "/:a"

@@ -5,6 +5,14 @@
 (def any-method :ANY*)
 
 
+(defn match-uri-against-pattern [pattern uri]
+  (let [matches (re-matches pattern uri)]
+    (when matches
+      (if (string? matches)
+        {}
+        (apply merge {} (for [i (range 1 (count matches))]
+                          [(keyword (str "$" i)) (matches i)]))))))
+
 (defn match-uri-against-pseudopattern [pseudopattern uri]
   (let [capture-regex-string* "([A-Za-z-\\d]+)"
         pseudo-capture-regex (re-pattern (str ":" capture-regex-string*))
@@ -24,21 +32,30 @@
 (defn route-matcher [routes]
   (fn [request]
     (loop [remaining-routes routes]
-      (if-let [current-route (first remaining-routes)]
-        (if (#{:ANY* (get-in request [:request-line :method])} (:method current-route))
-          (if-let [uri-matches (match-uri-against-pseudopattern (:pseudopattern current-route) (get-in request [:request-line :request-uri]))]
-            ((:action current-route)
-             request
-             (merge {}
-                    (:body-params request)
-                    uri-matches))
-            (recur (rest remaining-routes)))
-          (recur (rest remaining-routes)))
-        nil))))
+      (let [uri (get-in request [:request-line :request-uri])]
+        (if-let [current-route (first remaining-routes)]
+          (let [pattern (:pattern current-route)]
+            (if (#{:ANY* (get-in request [:request-line :method])} (:method current-route))
+              (if-let [uri-matches (if (string? pattern)
+                                     (match-uri-against-pseudopattern pattern uri)
+                                     (match-uri-against-pattern pattern uri))]
+                ((:action current-route)
+                 request
+                 (merge {}
+                        (:body-params request)
+                        uri-matches))
+                (recur (rest remaining-routes)))
+              (recur (rest remaining-routes))))
+          nil)))))
 
 (defmacro defroute [method]
-  `(defn ~(-> method name symbol) [pseudopattern# action#]
-     {:method ~method, :pseudopattern (str "^" pseudopattern# "$"), :action action#}))
+  `(defn ~(-> method name symbol) [pattern# action#]
+     {:method ~method
+      :pattern (let [new-pattern-string# (str "^" pattern# "$")]
+                 (if (string? pattern#)
+                   new-pattern-string#
+                   (re-pattern new-pattern-string#)))
+      :action action#}))
 
 (defmacro defroute-for-http-methods []
   `(do

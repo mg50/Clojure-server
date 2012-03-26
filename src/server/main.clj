@@ -7,18 +7,18 @@
 
 
 (defrouter integrated-router [request params]
-  (GET "/static/.*"
-       (let [path (second (re-find #"/static/(.*)"
-                                   (get-in request [:request-line :request-uri])))]
+  (GET #"/static/(.*)"
+       (let [path (:$1 params)]
+         (println "hello!!")
          (serve-file path)))
   (POST "/store_data"
         (let [filename (:filename params)
               data (:data params)]
           (write-file filename data)))
-  (GET ".*"
+  (GET #"(.*)"
        (echo (str
               "You just requested: "
-              (url-decode (get-in request [:request-line :request-uri]))
+              (url-decode (:$1 params))
               " Good job!")))
   (ANY* ".*"
         [403 "Forbidden"]))
