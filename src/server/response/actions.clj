@@ -29,14 +29,3 @@
       [200 "File successfully written."])
     (catch Exception _
       [500 "Unable to write file."])))
-
-(comment
-  (defn write-file [filename data]
-    (try
-      (with-open [wrtr (writer (str "/tmp/" filename))]
-        (println "hello")
-        (.write writer data)
-        (println "bye")
-        [200 "File successfully written."])
-      (catch Exception _
-        [500 "Unable to write file."]))))
