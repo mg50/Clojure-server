@@ -1,7 +1,7 @@
-(ns server.response-test
-  (:use [server.response])
-  (:use [clojure.test])
-  (:use [server.core]))
+(ns server.response.stringify-test
+  (:use server.response.stringify
+        clojure.test
+        server.core))
 
 
 (let [resp1 (str "HTTP/1.1 200 OK" crlf

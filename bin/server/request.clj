@@ -1,5 +1,4 @@
-(ns server.request
-  (:import (java.io InputStreamReader BufferedReader)))
+(ns server.request)
 
 (def http-methods [:OPTIONS :GET :HEAD :POST :PUT :DELETE :TRACE :CONNECT])
 
@@ -16,17 +15,17 @@
 
 
 (defn parse-headers [headers]
-  (let [header-re #"^([A-Za-z-]+): (.*)$"
+  (let [header-re #"^([\a-])+ .*$"
         header-pairs* (map (fn [header]
                              (let [h-matches (re-find header-re header)]
                                (if (empty? h-matches)
                                  nil
-                                 [(keyword (nth h-matches 1)) (nth h-matches 2)])))
+                                 (rest h-matches))))
                            headers)
         header-pairs (apply concat (remove nil? header-pairs*))]
     (apply hash-map header-pairs)))
 
-(defn parse-request [request-lines]
-  (let [request-line (parse-request-line (first request-lines))
-        headers (parse-headers (rest request-lines))]
+(defn parse-request [request]
+  (let [request-line (parse-request-line (first request))
+        headers (parse-headers (rest request))]
     {:request-line request-line, :headers headers}))

@@ -1,4 +1,4 @@
-(ns server.response
+(ns server.response.stringify
   (:use [server.core]))
 
 (def status-hash

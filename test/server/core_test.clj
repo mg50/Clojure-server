@@ -1,5 +1,5 @@
-(ns server.test.response
-  (:use [server.response])
+(ns server.core-test
+  (:use [server.core])
   (:use [clojure.test]))
 
 (deftest replace-me ;; FIXME: write

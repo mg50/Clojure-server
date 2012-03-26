@@ -1,21 +1,23 @@
 (ns server.socket-util-test
-  (:use server.core server.socket-util clojure.test)
-  (:import server.java.MockSocket))
+  (:use server.core server.socket-util clojure.test
+        [clojure.java.io :only [reader]])
+  (:import server.java.MockSocket java.io.ByteArrayInputStream))
 
-(deftest test-line-seq-from-socket-1
-  (let [sock (MockSocket. (str "Line 1" crlf "Line 2" crlf "Line 3"))]
-    (is (= (line-seq-from-socket sock)
-           ["Line 1" "Line 2" "Line 3"]))))
+(deftest test-stream-to-string-1
+  (let [rdr (reader (ByteArrayInputStream. (.getBytes "hello")))]
+    (is (= (stream-to-string rdr 5)
+           "hello"))))
 
-(deftest test-line-seq-from-socket-2
-  (let [sock (MockSocket. (str "Line" crlf "Line" crlf))]
-    (is (= line-seq-from-socket sock)
-        ["Line" "Line"])))
+(deftest test-stream-to-string-2
+  (let [rdr (reader (ByteArrayInputStream. (.getBytes "hello")))]
+    (is (= (stream-to-string rdr 2)
+           "he"))))
 
-(deftest test-line-seq-from-socket-2
-  (let [sock (MockSocket. (str ""))]
-    (is (= (line-seq-from-socket sock)
-           nil))))
+
+(deftest test-stream-to-string-2
+  (let [rdr (reader (ByteArrayInputStream. (.getBytes "hello")))]
+    (is (nil? (stream-to-string rdr 7)))))
+
 
 (deftest send-message-to-socket-1
   (let [sock (MockSocket. "")]

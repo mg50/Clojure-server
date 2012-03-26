@@ -1,18 +1,19 @@
 (ns server.socket-util
-  (:use [server.request :only [parse-request]])
+  (:use [server.request.parse :only [parse-request]]
+        [clojure.java.io :only [writer]])
   (:import (java.io BufferedReader BufferedWriter InputStreamReader OutputStreamWriter)))
 
-(defn line-seq-from-socket [sock]
-  (-> sock
-    .getInputStream
-    InputStreamReader.
-    BufferedReader.
-    line-seq))
+
+(defn stream-to-string [rdr length]
+  (try
+    (let [bytes (repeatedly length #(.read rdr))]
+      (apply str (map char bytes)))
+    (catch Exception e
+      nil)))
 
 (defn send-message-to-socket [sock resp-string]
-  (let [writer (-> sock
-                 .getOutputStream
-                 OutputStreamWriter.
-                 BufferedWriter.)]
-    (.write writer resp-string)
-    (.close writer)))
+  (try
+    (with-open [wrtr (writer (.getOutputStream sock))]
+         (.write wrtr resp-string))
+    (catch Exception e
+      (println e))))
