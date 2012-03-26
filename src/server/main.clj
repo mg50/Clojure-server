@@ -6,25 +6,42 @@
   (:import (java.net ServerSocket)))
 
 
-
-(defrouter echo-router [request params]
-  (GET ".*"
-       (echo (str
-              "You just requested: "
-              (url-decode (get-in request [:request-line :request-uri]))
-              " Good job!"))))
-
-(defrouter serve-file-router [request params]
-  (GET "/.*"
-       (serve-file (get-in request [:request-line :request-uri]))))
-
-(defrouter file-write-router [request params]
+(defrouter integrated-router [request params]
+  (GET "/static/.*"
+       (let [path (second (re-find #"/static/(.*)"
+                                   (get-in request [:request-line :request-uri])))]
+         (serve-file path)))
   (POST "/store_data"
         (let [filename (:filename params)
               data (:data params)]
           (write-file filename data)))
+  (GET ".*"
+       (echo (str
+              "You just requested: "
+              (url-decode (get-in request [:request-line :request-uri]))
+              " Good job!")))
   (ANY* ".*"
         [403 "Forbidden"]))
+
+(comment
+  (defrouter echo-router [request params]
+    (GET ".*"
+         (echo (str
+                "You just requested: "
+                (url-decode (get-in request [:request-line :request-uri]))
+                " Good job!"))))
+
+  (defrouter serve-file-router [request params]
+    (GET "/.*"
+         (serve-file (get-in request [:request-line :request-uri]))))
+
+  (defrouter file-write-router [request params]
+    (POST "/store_data"
+          (let [filename (:filename params)
+                data (:data params)]
+            (write-file filename data)))
+    (ANY* ".*"
+          [403 "Forbidden"])))
 
 
 (defn -main [& args]
@@ -33,10 +50,7 @@
     (loop []
       (let [client (.accept server)
             server-type (first args)
-            agents (generate-agents (cond
-                                     (= server-type "serve-file") serve-file-router
-                                     (= server-type "file-write") file-write-router
-                                     :else echo-router))]
+            agents (generate-agents integrated-router)]
         (.setSoTimeout client 1000)
         (send-socket-to-http-agents agents client)
         (recur)))))
