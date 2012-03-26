@@ -1,8 +1,8 @@
 (ns server.agents
   (:use [server.request.parse :only [parse-request]])
   (:use (server [socket-util :only [send-message-to-socket]]
-                [response :only [make-response-string]]
-                core)))
+                core)
+        [server.response.stringify :only [make-response-string]]))
 
 
 (def max-threadpool-size 10)
