@@ -1,5 +1,7 @@
 This is a simple Clojure webserver utilizing agents and Sinatra-style routing. Server configuration can be set in the conf.properties file in the project root; currently, the only properties that are used are "webroot" and "maxthreads."
 
+After downloading the project, make sure to run `lein compile` to compile the src/java directory.
+
 To run the server from the project root, you have three options:
 
 Echo Server:
