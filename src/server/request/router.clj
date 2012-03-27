@@ -4,10 +4,9 @@
 
 (def any-method :ANY*)
 
-
-(defn match-uri-against-pattern
-  "Matches a regex pattern against a URI. If the pattern matches, a (possibly empty) hash of captured subgroups is returned with keys given by :$1, :$2, etc."
-  [pattern uri]
+(defmulti match-uri (fn [pattern uri] (class pattern)))
+str
+(defmethod match-uri java.util.regex.Pattern [pattern uri]
   (let [matches (re-matches pattern uri)]
     (when matches
       (if (string? matches)
@@ -15,16 +14,14 @@
         (apply merge {} (for [i (range 1 (count matches))]
                           [(keyword (str "$" i)) (matches i)]))))))
 
-(defn match-uri-against-pseudopattern
-  "A pseudopattern is a string that looks like a regex but uses keyword names like :id (so an example pseudopattern is the string \"products/:id/\"). This function matches a URI against a pseudopattern, returning a (possibly empty) hash of matches with keys given by their keyword names."
-  [pseudopattern uri]
-  (let [capture-regex-string* "([A-Za-z-\\d]+)"
-        pseudo-capture-regex (re-pattern (str ":" capture-regex-string*))
-        capture-regex-string "([A-Za-z-\\\\d]+)"
+(defmethod match-uri java.lang.String [pseudopattern uri]
+  (let [capture-regex-string "([A-Za-z-\\d]+)"
+        pseudo-capture-regex (re-pattern (str ":" capture-regex-string))
+        string-to-replace-pseudo-capture "([A-Za-z-\\\\d]+)"
 
-        capture-names* (re-seq pseudo-capture-regex pseudopattern)
-        capture-names (map #(-> % second keyword) capture-names*)
-        proper-pattern (re-pattern (string/replace pseudopattern pseudo-capture-regex capture-regex-string))
+        capture-groups (re-seq pseudo-capture-regex pseudopattern)
+        capture-names (map #(-> % second keyword) capture-groups)
+        proper-pattern (re-pattern (string/replace pseudopattern pseudo-capture-regex string-to-replace-pseudo-capture))
 
         matches (re-matches proper-pattern uri)
         capture-pairs (map #(hash-map %1 %2) capture-names (rest matches))]
@@ -37,14 +34,12 @@
   "Given a vector of routes, returns a function that attempts to find the first whose pattern/pseudopattern matches the URI of a request. If one is found, the route's action is called on the request (along with any URI parameters)."
   [routes]
   (fn [request]
-    (loop [remaining-routes routes]
-      (let [uri (get-in request [:request-line :request-uri])]
+    (let [uri (get-in request [:request-line :request-uri])]
+      (loop [remaining-routes routes]
         (if-let [current-route (first remaining-routes)]
           (let [pattern (:pattern current-route)]
-            (if (#{:ANY* (get-in request [:request-line :method])} (:method current-route))
-              (if-let [uri-matches (if (string? pattern)
-                                     (match-uri-against-pseudopattern pattern uri)
-                                     (match-uri-against-pattern pattern uri))]
+            (if (#{any-method (get-in request [:request-line :method])} (:method current-route))
+              (if-let [uri-matches (match-uri pattern uri)]
                 ((:action current-route)
                  request
                  (merge {}

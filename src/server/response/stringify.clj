@@ -47,25 +47,14 @@
    504 "Gateway Time-out"
    505 "HTTP Version not supported"})
 
-(defn response-status-string [resp]
-  (let [pattern (re-pattern (str "^(.+)" crlf))
-        matches (re-find pattern resp)]
-    (if-not (empty? matches)
-      (second matches))))
-
-(defn response-body-string [resp]
-  (let [pattern (re-pattern (str crlf crlf "(.+)$"))
-        matches (re-find pattern resp)]
-    (if-not (empty? matches)
-      (second matches))))
 
 (defn make-response-string [status-code body]
-  (let [status-line (str "HTTP/1.1" " " status-code " " (status-hash status-code))
+  (let [status-line (str "HTTP/1.1 " status-code " " (status-hash status-code))
         bytes (.getBytes body "UTF-8")
         content-length (count bytes)]
-    (normalize [status-line
-                "Content-Type: text/plain; charset=utf-8"
-                (str "Content-Length: " content-length)
-                "Connection: close"
-                ""
-                body])))
+    (normalize status-line
+               "Content-Type: text/plain; charset=utf-8"
+               (str "Content-Length: " content-length)
+               "Connection: close"
+               ""
+               body)))

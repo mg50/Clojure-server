@@ -34,6 +34,10 @@
   (is (= (parse-headers ["Host: localhost:3000" "Connection: keep-alive" "Accept-Encoding: gzip,deflate,sdch", "invalid header"])
          {:Host "localhost:3000", :Connection "keep-alive", :Accept-Encoding "gzip,deflate,sdch"})))
 
+(deftest test-parse-headers-4
+  (is (= (parse-headers [])
+         {})))
+
 (deftest parse-k-v-pairs-1
   (let [kv-string "a=1&b=2"]
     (is (= {:a "1", :b "2"}
@@ -59,10 +63,10 @@
   (is (= (parse-request (ByteArrayInputStream.
                          (.getBytes
                           (str
-                            "GET /xyz/3 HTTP/1.1" crlf
-                            "Host: localhost:3000" crlf
-                            "Connection: keep-alive" crlf
-                            crlf))))
+                           "GET /xyz/3 HTTP/1.1" crlf
+                           "Host: localhost:3000" crlf
+                           "Connection: keep-alive" crlf
+                           crlf))))
          {:request-line {:method :GET
                          :request-uri "/xyz/3"
                          :http-version "HTTP/1.1"}
@@ -121,4 +125,48 @@
                          :http-version "HTTP/1.1"}
           :headers {:Host "localhost:3000"
                     :Connection "keep-alive"}
+          :body-params {}})))
+
+
+(deftest parse-request-test-4
+  (is (= (parse-request (ByteArrayInputStream.
+                         (.getBytes
+                          (str
+                           "GET /xyz/3 HTTP/1.1" crlf
+                           "Host: localhost:3000" crlf
+                           "Connection: keep-alive" crlf
+                           crlf
+                           "message=hello"))))
+         {:request-line {:method :GET
+                         :request-uri "/xyz/3"
+                         :http-version "HTTP/1.1"}
+          :headers {:Host "localhost:3000"
+                    :Connection "keep-alive"}
+          :body-params {}})))
+
+(deftest parse-request-test-4
+  (is (= (parse-request (ByteArrayInputStream.
+                         (.getBytes
+                          (str
+                           "GET /xyz/3 HTTP/1.1" crlf
+                           "Host: localhost:3000" crlf
+                           "Connection: keep-alive" crlf
+                           crlf
+                           "message=hello"))))
+         {:request-line {:method :GET
+                         :request-uri "/xyz/3"
+                         :http-version "HTTP/1.1"}
+          :headers {:Host "localhost:3000"
+                    :Connection "keep-alive"}
+          :body-params {}})))
+
+
+(deftest parse-request-test-5
+  (is (= (parse-request (ByteArrayInputStream.
+                         (.getBytes
+                          (normalize "GET /xyz/3 HTTP/1.1" ""))))
+         {:request-line {:method :GET
+                         :request-uri "/xyz/3"
+                         :http-version "HTTP/1.1"}
+          :headers {}
           :body-params {}})))

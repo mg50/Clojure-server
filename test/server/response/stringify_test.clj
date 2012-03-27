@@ -34,21 +34,4 @@
                 "Content-Length: 11" crlf
                 "Connection: close" crlf
                 crlf
-                "bad request"))))
-
-
-  (deftest test-response-status-string-1
-    (is (= "HTTP/1.1 200 OK"
-           (response-status-string resp1))))
-
-  (deftest test-response-status-string-2
-    (is (= "HTTP/1.1 404 Not Found"
-           (response-status-string resp2))))
-
-  (deftest test-response-body-string-1
-    (is (= "hello"
-           (response-body-string resp1))))
-
-  (deftest test-response-body-string-2
-    (is (= "bad request")
-        (response-body-string resp2))))
+                "bad request")))))

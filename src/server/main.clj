@@ -3,13 +3,13 @@
         [server.request.router :only [defrouter GET POST ANY*]]
         [server.response.actions :only [echo serve-file write-file]]
         [server.core :only [url-decode]])
-  (:import (java.net ServerSocket)))
+  (:import (java.net ServerSocket))
+  (:gen-class))
 
 
 (defrouter integrated-router [request params]
   (GET #"/static/(.*)"
        (let [path (:$1 params)]
-         (println "hello!!")
          (serve-file path)))
   (POST "/store_data"
         (let [filename (:filename params)

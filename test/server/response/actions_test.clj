@@ -1,7 +1,32 @@
 (ns server.response.actions-test
-  (:use server.response.actions clojure.test)
+  (:use server.response.actions clojure.test server.core)
   (:import java.io.ByteArrayInputStream
            java.io.ByteArrayOutputStream))
+
+(deftest test-reader-source-1
+  (is (= (reader-source "test")
+         (str (config "webroot") "test"))))
+
+(deftest test-reader-source-2
+  (is (= (reader-source "test test")
+         (str (config "webroot") "test test"))))
+
+(deftest test-reader-source-3
+  (let [stream (ByteArrayInputStream. (.getBytes ""))]
+    (is (= (reader-source stream)
+           stream))))
+
+(deftest test-writer-source-1
+  (is (= (writer-source "test")
+         "/tmp/test")))
+
+(deftest test-writer-source-2
+  (is (= (writer-source "test test")
+         "/tmp/test test")))
+
+(deftest test-writer-source-3
+  (let [stream (ByteArrayOutputStream.)]
+    (is (= (writer-source stream) stream))))
 
 (deftest test-echo-1
   (is (= [200 "test"] (echo "test"))))

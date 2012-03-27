@@ -1,6 +1,5 @@
 (ns server.socket-util
-  (:use [clojure.java.io :only [writer]])
-  (:import (java.io BufferedReader BufferedWriter InputStreamReader OutputStreamWriter)))
+  (:use [clojure.java.io :only [writer]]))
 
 
 (defn stream-to-string [rdr length]
