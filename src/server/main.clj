@@ -23,26 +23,6 @@
   (ANY* ".*"
         [403 "Forbidden"]))
 
-(comment
-  (defrouter echo-router [request params]
-    (GET ".*"
-         (echo (str
-                "You just requested: "
-                (url-decode (get-in request [:request-line :request-uri]))
-                " Good job!"))))
-
-  (defrouter serve-file-router [request params]
-    (GET "/.*"
-         (serve-file (get-in request [:request-line :request-uri]))))
-
-  (defrouter file-write-router [request params]
-    (POST "/store_data"
-          (let [filename (:filename params)
-                data (:data params)]
-            (write-file filename data)))
-    (ANY* ".*"
-          [403 "Forbidden"])))
-
 
 (defn -main [& args]
   (let [port (Integer/parseInt (config "port"))

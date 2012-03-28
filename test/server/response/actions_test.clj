@@ -1,7 +1,8 @@
 (ns server.response.actions-test
   (:use server.response.actions clojure.test server.core)
   (:import java.io.ByteArrayInputStream
-           java.io.ByteArrayOutputStream))
+           java.io.ByteArrayOutputStream
+           server.java.MockDirectory server.java.MockFile))
 
 (deftest test-reader-source-1
   (is (= (reader-source "test")
@@ -15,6 +16,10 @@
   (let [stream (ByteArrayInputStream. (.getBytes ""))]
     (is (= (reader-source stream)
            stream))))
+
+(deftest test-get-file-1
+  (let [file (MockFile. "test")]
+    (is (= file (get-file file)))))
 
 (deftest test-writer-source-1
   (is (= (writer-source "test")
@@ -61,3 +66,27 @@
     (write-file stream nil)
     (is (= ""
            (.toString stream "UTF-8")))))
+
+
+(deftest test-dir-list-1
+  (let [dir (MockDirectory.)]
+    (.addMockFile dir "file1")
+    (is (= [200 "file1"]
+           (dir-list dir)))))
+
+(deftest test-dir-list-2
+  (let [dir (MockDirectory.)]
+    (.addMockFile dir "file1")
+    (.addMockFile dir "file2")
+    (is (= [200 "file1\nfile2"]
+           (dir-list dir)))))
+
+(deftest test-dir-list-3
+  (let [dir (MockDirectory.)]
+    (is (= [200 ""]
+           (dir-list dir)))))
+
+(deftest test-dir-list-4
+  (let [dir (MockDirectory.)]
+    (is (= [404 "Directory not found"]
+           (dir-list (MockFile. "999999999"))))))
