@@ -2,16 +2,16 @@
   (:use [clojure.java.io :only [writer reader]]
         server.core))
 
-(defmulti reader-source string?)
-(defmethod reader-source true [string]
+(defmulti reader-source class)
+(defmethod reader-source java.lang.String [string]
   (str (config "webroot") string))
-(defmethod reader-source false [stream]
+(defmethod reader-source java.io.InputStream [stream]
   stream)
 
-(defmulti writer-source string?)
-(defmethod writer-source true [string]
+(defmulti writer-source class)
+(defmethod writer-source java.lang.String [string]
   (str "/tmp/" string))
-(defmethod writer-source false [stream]
+(defmethod writer-source java.io.OutputStream [stream]
   stream)
 
 (defn echo [message]
