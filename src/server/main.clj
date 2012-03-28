@@ -2,7 +2,7 @@
   (:use [server.agents :only [generate-agents send-socket-to-http-agents]]
         [server.request.router :only [defrouter GET POST ANY*]]
         [server.response.actions :only [echo serve-file write-file]]
-        [server.core :only [url-decode]])
+        [server.core :only [url-decode config]])
   (:import (java.net ServerSocket))
   (:gen-class))
 
@@ -45,8 +45,9 @@
 
 
 (defn -main [& args]
-  (let [server (ServerSocket. 3000)]
-    (println "server starting")
+  (let [port (Integer/parseInt (config "port"))
+        server (ServerSocket. port)]
+    (println (str "Server starting on port " port "..."))
     (loop []
       (let [client (.accept server)
             server-type (first args)
