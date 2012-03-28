@@ -1,6 +1,6 @@
 (ns server.app
   (:use [server.core :only [config]]
-        [server.ageents :only [generate-agents send-socket-to-http-agents]])
+        [server.agents :only [generate-agents send-socket-to-http-agents]])
   (:import java.net.ServerSocket))
 
 (defn run-server [router]
