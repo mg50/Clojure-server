@@ -69,11 +69,11 @@
 
 
   (deftest test-make-response-string--1
-    (is (= (make-response-string 200 "hello")
+    (is (= (make-response-string [200 "hello"])
            resp1)))
 
   (deftest test-make-response-string-2
-    (is (= (make-response-string 404 "bad request")
+    (is (= (make-response-string [404 "bad request"])
            resp2)))
 
   (deftest test-make-response-string-3

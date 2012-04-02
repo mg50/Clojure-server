@@ -16,10 +16,10 @@
 
 (defn request-response-cycle [agent-dispatch-fn socket]
   (let [parsed-request (parse-request (.getInputStream socket))
-        [status-code resp-body] (agent-dispatch-fn parsed-request)]
+        response-data (agent-dispatch-fn parsed-request)]
     ;(send-request-to-logger-agent parsed-request)
     (send-message-to-socket socket
-                           (make-response-string status-code resp-body)))
+                           (make-response-string response-data)))
   (.close socket)
   agent-dispatch-fn)
 

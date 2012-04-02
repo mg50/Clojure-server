@@ -17,7 +17,7 @@
         mock-router (fn [request] [200 "OK"])
         socket (MockSocket. request)]
     (request-response-cycle mock-router socket)
-    (is (= (make-response-string 200 "OK")
+    (is (= (make-response-string [ 200 "OK"])
            (-> socket .getOutputStream .toString)))))
 
 (deftest test-request-response-cycle-2
@@ -25,7 +25,7 @@
         mock-router (fn [request] [500 "Internal error"])
         socket (MockSocket. request)]
     (request-response-cycle mock-router socket)
-    (is (= (make-response-string 500 "Internal error")
+    (is (= (make-response-string [500 "Internal error"])
            (-> socket .getOutputStream .toString)))))
 
 (deftest test-send-socket-to-http-agents-1
@@ -36,7 +36,7 @@
           socket (MockSocket. request)]
       (send-socket-to-http-agents agents socket)
       (apply await agents)
-      (is (= (make-response-string 404 "Not Found")
+      (is (= (make-response-string [404 "Not Found"])
              (-> socket .getOutputStream .toString))))))
 
 (deftest test-send-socket-to-http-agents-2
@@ -49,6 +49,6 @@
       (doseq [sock sockets]
         (send-socket-to-http-agents agents sock))
       (apply await agents)
-      (let [resp (make-response-string 404 "Not Found")]
+      (let [resp (make-response-string [404 "Not Found"])]
         (doseq [sock sockets]
           (is (= resp (-> sock .getOutputStream .toString))))))))

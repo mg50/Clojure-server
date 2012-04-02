@@ -49,6 +49,7 @@
 
 (def default-headers {:Connection "close" :Content-Type "text/plain; charset=utf-8"})
 
+
 (defn format-headers [headers body-length]
   (let [headers (merge default-headers headers {:Content-Length body-length})]
     (let [header-strings (map #(str (name (first %))
@@ -58,15 +59,19 @@
                               headers)]
       (apply str header-strings))))
 
-(defn make-response-string
-  ([hash]
-     (let [status-code (:status-code hash)
-           status-line (str "HTTP/1.1 " status-code " " (status-hash status-code))
-           headers (apply merge {}
-                          (filter #(not (#{:status-code :body} (first %))) hash))
-           body (:body hash)]
-       (normalize status-line
-                  (format-headers headers (count (.getBytes body)))
-                  body)))
-  ([status-code body]
-     (make-response-string {:status-code status-code :body body})))
+(defmulti make-response-string #(class %))
+
+(defmethod make-response-string clojure.lang.PersistentArrayMap
+  [hash]
+  (let [status-code (:status-code hash)
+        status-line (str "HTTP/1.1 " status-code " " (status-hash status-code))
+        headers (apply merge {}
+                       (filter #(not (#{:status-code :body} (first %))) hash))
+        body (:body hash)]
+    (normalize status-line
+               (format-headers headers (count (.getBytes body)))
+               body)))
+
+(defmethod make-response-string clojure.lang.PersistentVector
+  [[status-code body]]
+  (make-response-string {:status-code status-code :body body}))
