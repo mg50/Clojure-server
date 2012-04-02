@@ -47,14 +47,26 @@
    504 "Gateway Time-out"
    505 "HTTP Version not supported"})
 
+(def default-headers {:Connection "close" :Content-Type "text/plain; charset=utf-8"})
 
-(defn make-response-string [status-code body]
-  (let [status-line (str "HTTP/1.1 " status-code " " (status-hash status-code))
-        bytes (.getBytes body "UTF-8")
-        content-length (count bytes)]
-    (normalize status-line
-               "Content-Type: text/plain; charset=utf-8"
-               (str "Content-Length: " content-length)
-               "Connection: close"
-               ""
-               body)))
+(defn format-headers [headers body-length]
+  (let [headers (merge default-headers headers {:Content-Length body-length})]
+    (let [header-strings (map #(str (name (first %))
+                                    ": "
+                                    (second %)
+                                    crlf)
+                              headers)]
+      (apply str header-strings))))
+
+(defn make-response-string
+  ([hash]
+     (let [status-code (:status-code hash)
+           status-line (str "HTTP/1.1 " status-code " " (status-hash status-code))
+           headers (apply merge {}
+                          (filter #(not (#{:status-code :body} (first %))) hash))
+           body (:body hash)]
+       (normalize status-line
+                  (format-headers headers (count (.getBytes body)))
+                  body)))
+  ([status-code body]
+     (make-response-string {:status-code status-code :body body})))
