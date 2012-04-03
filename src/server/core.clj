@@ -1,5 +1,6 @@
 (ns server.core
-  (:use [clojure.string :only [split]])
+  (:use [clojure.string :only [split]]
+        [clojure.java.io :only [resource]])
   (:import java.net.URLDecoder java.util.Properties java.io.FileInputStream))
 
 (def crlf "\r\n")
@@ -18,4 +19,5 @@
     (.load properties stream)
     (into {} properties)))
 
-(def config (get-config (FileInputStream. "conf.properties")))
+(def config
+  (get-config (FileInputStream. (.getPath (resource "conf.properties")))))
