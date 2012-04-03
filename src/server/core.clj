@@ -20,4 +20,6 @@
     (into {} properties)))
 
 (def config
-  (get-config (FileInputStream. (.getPath (resource "conf.properties")))))
+  (get-config (-> (Thread/currentThread)
+                  .getContextClassLoader
+                  (.getResourceAsStream "conf.properties"))))
