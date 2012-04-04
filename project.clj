@@ -1,4 +1,4 @@
-(defproject com.scriptling/clojureserver "0.1.5-SNAPSHOT"
+(defproject com.scriptling/clojureserver "0.1.6-SNAPSHOT"
   :description "Simple server written in Clojure"
   :dependencies [[org.clojure/clojure "1.3.0"]]
   :plugins [[lein-swank "1.4.4"]]

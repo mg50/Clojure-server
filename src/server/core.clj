@@ -23,11 +23,21 @@
   ([stream opts]
      (merge (get-config stream) opts)))
 
-(declare config)
+
+(def ^:dynamic *config*
+  (get-config
+   (-> (Thread/currentThread)
+       .getContextClassLoader
+       (.getResourceAsStream "conf.properties"))))
+
+
 (defn initialize-config [opts]
-  (def config
+  (def ^:dynamic *config*
     (get-config
      (-> (Thread/currentThread)
          .getContextClassLoader
          (.getResourceAsStream "conf.properties"))
      opts)))
+
+(defn config [key]
+  (*config* key))
