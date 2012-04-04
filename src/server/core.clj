@@ -14,12 +14,20 @@
 (defn url-decode [string]
   (URLDecoder/decode string "UTF-8"))
 
-(defn get-config [stream]
-  (let [properties (Properties.)]
-    (.load properties stream)
-    (into {} properties)))
 
-(def config
-  (get-config (-> (Thread/currentThread)
-                  .getContextClassLoader
-                  (.getResourceAsStream "conf.properties"))))
+(defn get-config
+  ([stream]
+     (let [properties (Properties.)]
+       (.load properties stream)
+       (into {} properties)))
+  ([stream opts]
+     (merge (get-config stream) opts)))
+
+(declare config)
+(defn initialize-config [opts]
+  (def config
+    (get-config
+     (-> (Thread/currentThread)
+         .getContextClassLoader
+         (.getResourceAsStream "conf.properties"))
+     opts)))

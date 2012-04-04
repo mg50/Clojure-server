@@ -33,3 +33,31 @@
         stream (ByteArrayInputStream. (.getBytes properties-string))]
     (is (= (get-config stream)
            {}))))
+
+(deftest test-get-config-4
+  (let [properties-string "port=3000"
+        stream (ByteArrayInputStream. (.getBytes properties-string))
+        opts {"port" "5000"}]
+    (is (= (get-config stream opts)
+           {"port" "5000"}))))
+
+(deftest test-get-config-5
+  (let [properties-string "port=6000\nwebroot=./"
+        stream (ByteArrayInputStream. (.getBytes properties-string))
+        opts {"webroot" "/public"}]
+    (is (= (get-config stream opts)
+           {"port" "6000" "webroot" "/public"}))))
+
+(deftest test-get-config-6
+  (let [properties-string "port=6000\nwebroot=./"
+        stream (ByteArrayInputStream. (.getBytes properties-string))
+        opts {}]
+    (is (= (get-config stream opts)
+           {"port" "6000" "webroot" "./"}))))
+
+(deftest test-get-config-7
+  (let [properties-string "port=6000\nwebroot=./"
+        stream (ByteArrayInputStream. (.getBytes properties-string))
+        opts {"port" "1" "webroot" "/public"}]
+    (is (= (get-config stream opts)
+           {"port" "1" "webroot" "/public"}))))
