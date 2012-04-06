@@ -6,11 +6,11 @@
 
 (deftest test-reader-source-1
   (is (= (reader-source "test")
-         (str (config "webroot") "test"))))
+         (str (config "webroot") "/" "test"))))
 
 (deftest test-reader-source-2
   (is (= (reader-source "test test")
-         (str (config "webroot") "test test"))))
+         (str (config "webroot") "/" "test test"))))
 
 (deftest test-reader-source-3
   (let [stream (ByteArrayInputStream. (.getBytes ""))]
