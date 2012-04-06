@@ -6,7 +6,7 @@
 
 (defmulti reader-source class)
 (defmethod reader-source java.lang.String [string]
-  (str (config "webroot") string))
+  (str (config "webroot") "/" string))
 (defmethod reader-source java.io.InputStream [stream]
   stream)
 

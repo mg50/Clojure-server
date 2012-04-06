@@ -14,6 +14,10 @@
 (defn url-decode [string]
   (URLDecoder/decode string "UTF-8"))
 
+(def config-defaults
+  {"webroot" "./public"
+   "numagents" "10"
+   "port" "5000"})
 
 (defn get-config
   ([stream]
@@ -24,20 +28,18 @@
      (merge (get-config stream) opts)))
 
 
-(def ^:dynamic *config*
-  (get-config
-   (-> (Thread/currentThread)
-       .getContextClassLoader
-       (.getResourceAsStream "conf.properties"))))
-
+(def *config* (atom config-defaults))
 
 (defn initialize-config [opts]
-  (def ^:dynamic *config*
-    (get-config
-     (-> (Thread/currentThread)
-         .getContextClassLoader
-         (.getResourceAsStream "conf.properties"))
-     opts)))
+  (reset! *config*
+    (try
+      (with-open [stream (-> (Thread/currentThread)
+                             .getContextClassLoader
+                             (.getResourceAsStream "conf.properties"))]
+        (get-config stream opts))
+      (catch Exception e
+        (println "Unable to open conf.properties file. Using config defaults.")
+        (merge config-defaults opts)))))
 
 (defn config [key]
-  (*config* key))
+  (@*config* key))
