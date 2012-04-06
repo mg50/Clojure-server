@@ -18,7 +18,7 @@
 
 (defmulti get-file class)
 (defmethod get-file java.lang.String [path]
-  (File. (str (config "webroot") path)))
+  (File. (str (config "webroot") "/" path)))
 (defmethod get-file java.io.File [file]
   file)
 
